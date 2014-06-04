@@ -134,9 +134,9 @@ module.exports = function(grunt) {
         },
         files: [{
         expand: true,
-        flatten: true,
-        cwd: '<%=config.dev%>/src/',
-        src: ['**/**.coffee'],
+        flatten: false,
+        cwd: '<%= config.dev %>/src/',
+        src: ['{,*/}*.coffee'],
         dest: '<%= config.app %>/src/',
         ext: '.js'
         }]
