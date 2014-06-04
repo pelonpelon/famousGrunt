@@ -263,6 +263,17 @@ module.exports = function(grunt) {
             'lib/famous/**/**.css'
           ]
         }]
+      },
+      app: {
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: '<%= config.dev %>/content',
+          dest: '<%= config.app %>/content',
+          src: [
+            '**/**.{ico,png,txt,jpg}',
+          ]
+        }]
       }
     },
     requirejs: {
@@ -293,6 +304,7 @@ module.exports = function(grunt) {
 
     grunt.task.run([
       'clean:server',
+      'copyContent',
       'coffee:compile',
       'coffeelint',
       'stylus',
@@ -328,6 +340,10 @@ module.exports = function(grunt) {
 
   grunt.registerTask('imageCompress', [
     'newer:imagemin:dynamic'
+  ]);
+
+  grunt.registerTask('copyContent', [
+    'newer:copy:app'
   ]);
 
 };
