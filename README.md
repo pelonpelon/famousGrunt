@@ -1,4 +1,8 @@
-#famousTRY                                                                                                               
+#famousGrunt
+Cloned from yo famous
+
+Added coffeescript, jade, stylus, imagemin
+
 > Seed project to get started with Famo.us.
 
 ##Dependencies
