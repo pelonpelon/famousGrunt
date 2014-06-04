@@ -29,7 +29,7 @@ module.exports = function(grunt) {
             },
             coffee: {
               files: ['<%= config.dev %>/src/**/**.coffee'],
-              tasks: ['coffee:compile']
+              tasks: ['coffee:compile', 'coffeelint']
             },
             js: {
                 files: ['<%= config.app %>/src/**/**.js'],
@@ -139,6 +139,12 @@ module.exports = function(grunt) {
             dest: '<%= config.app %>/src/',
             ext: '.js'
           },
+        },
+        coffeelint: {
+          files: ['<%=config.dev%>/src/**/**.coffee'],
+          options: {
+            configFile: 'coffeelint.json'
+          }
         },
         jade: {
           compile: {
@@ -266,6 +272,7 @@ module.exports = function(grunt) {
         grunt.task.run([
             'clean:server',
             'coffee:compile',
+            'coffeelint',
             'stylus',
             'jade',
             'processhtml:dev',
@@ -277,6 +284,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build', [
         'clean:dist',
         'coffee:compile',
+        'coffeelint',
         'stylus',
         'jade',
         'processhtml:dist',
