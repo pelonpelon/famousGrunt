@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "requireConfig.js",
+  "sourceRoot": "../../dev/src/",
+  "sources": [
+    "requireConfig.coffee"
+  ],
+  "names": [],
+  "mappings": "AACA;AAAA,EAAA,OAAO,CAAC,MAAR,CACE;AAAA,IAAA,IAAA,EAAM,EAAN;AAAA,IACA,KAAA,EACE;AAAA,MAAA,MAAA,EAAQ,eAAR;AAAA,MACA,SAAA,EAAW,0BADX;AAAA,MAEA,MAAA,EAAQ,sBAFR;AAAA,MAGA,kBAAA,EAAoB,+BAHpB;KAFF;GADF,CAAA,CAAA;;AAAA,EAQA,OAAA,CAAQ,CAAC,MAAD,CAAR,CARA,CAAA;AAAA"
+}
