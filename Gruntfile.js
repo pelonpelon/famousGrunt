@@ -52,8 +52,8 @@ module.exports = function(grunt) {
         }
       },
       jade: {
-        files: ['<%= config.dev %>/{,*/}*.jade'],
-        tasks: ['jade']
+        files: ['<%= config.dev %>/*.jade'],
+        tasks: ['jade:compile']
       },
       livereload: {
         options: {
@@ -132,13 +132,15 @@ module.exports = function(grunt) {
         options: {
           sourceMap: true
         },
+        files: [{
         expand: true,
         flatten: true,
         cwd: '<%=config.dev%>/src/',
         src: ['**/**.coffee'],
         dest: '<%= config.app %>/src/',
         ext: '.js'
-      },
+        }]
+      }
     },
     coffeelint: {
       files: ['<%=config.dev%>/src/**/**.coffee'],
@@ -154,17 +156,22 @@ module.exports = function(grunt) {
             debug: false
           }
         },
-        files: {
-          '<%= config.app%>/index.html': ['<%= config.dev %>/**/**.jade']
-        }
+        files: [{
+          expand: true,
+          flatten: true,
+          cwd: '<%=config.dev%>/',
+          src: ['*.jade'],
+          dest: '<%= config.app %>/',
+          ext: '.html'
+        }]
       }
     },
     stylus: {
       compile: {
         options: {},
-        files: {
-          '<%= config.app %>/styles/app.css': ['<%= config.dev %>/styles/**/**.styl'] // compile and concat into single file
-        }
+        files: [{
+          '<%= config.app %>/styles/app.css': ['<%= config.dev %>/styles/**/**.styl']
+        }]
       }
     },
 
@@ -308,7 +315,7 @@ module.exports = function(grunt) {
       'coffee:compile',
       'coffeelint',
       'stylus',
-      'jade',
+      'jade:compile',
       'processhtml:dev',
       'connect:livereload',
       'watch'
@@ -320,7 +327,7 @@ module.exports = function(grunt) {
     'coffee:compile',
     'coffeelint',
     'stylus',
-    'jade',
+    'jade:compile',
     'processhtml:dist',
     'useminPrepare',
     'requirejs',
