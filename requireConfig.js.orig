@@ -1,0 +1,13 @@
+/*globals require*/
+require.config({
+    shim: {
+
+    },
+    paths: {
+        famous: '../lib/famous',
+        requirejs: 'app/lib/requirejs/require',
+        almond: 'app/lib/almond/almond',
+        'famous-polyfills': 'app/lib/famous-polyfills/index'
+    }
+});
+require(['main']);

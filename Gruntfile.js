@@ -1,4 +1,5 @@
 /*global module:false*/
+/*global require:false*/
 
 /*Generated initially from grunt-init, heavily inspired by yo webapp*/
 
@@ -27,33 +28,21 @@ module.exports = function(grunt) {
         files: ['bower.json'],
         tasks: ['bower']
       },
+      gruntfile: {
+        files: ['Gruntfile.js'],
+        tasks: ['jscs:Gruntfile', 'restart']
+      },
       coffee: {
         files: ['<%= config.dev %>/src/**/**.coffee'],
         tasks: ['coffee:compile', 'coffeelint']
       },
-      js: {
-        files: ['<%= config.app %>/src/**/**.js'],
-        tasks: [],
-        options: {
-          livereload: true
-        }
-      },
-      gruntfile: {
-        files: ['Gruntfile.js']
-      },
       stylus: {
         files: ['<%= config.dev %>/styles/**/**.styl'],
-        tasks: ['stylus']
-      },
-      css: {
-        files: ['<%= config.app %>/css/{,*/}*.css'],
-        options: {
-          livereload: true
-        }
+        tasks: ['stylus:compile']
       },
       jade: {
         files: ['<%= config.dev %>/*.jade'],
-        tasks: ['jade:compile']
+        tasks: ['jade:compile','processhtml:dev']
       },
       livereload: {
         options: {
@@ -62,10 +51,155 @@ module.exports = function(grunt) {
         files: [
           '<%= config.app %>/{,*/}*.html',
           '<%= config.app %>/styles/**/**.css',
-          '<%= config.app %>/images/{,*/}*'
+          '<%= config.app %>/src/**/**.js'
         ]
       }
     },
+
+    jscs: {
+      Gruntfile: {
+        src: ['Gruntfile.js'],
+        options: {
+          config: '.jscsrc'
+        }
+      }
+    },
+
+    coffeelint: {
+      files: ['<%=config.dev%>/src/**/**.coffee'],
+      options: {
+        configFile: 'coffeelint.json'
+      }
+    },
+
+    coffee: {
+      compile: {
+        options: {
+          sourceMap: true
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= config.dev %>/src/',
+          src: ['{,*/}*.coffee'],
+          dest: '<%= config.app %>/src/',
+          ext: '.js'
+        }]
+      }
+    },
+
+    jade: {
+      compile: {
+        options: {
+          pretty: true,
+          data: {
+            debug: false
+          }
+        },
+        files: [{
+          expand: true,
+          flatten: true,
+          cwd: '<%=config.dev%>/',
+          src: ['*.jade'],
+          dest: '<%= config.app %>/',
+          ext: '.html'
+        }]
+      }
+    },
+
+    stylus: {
+      compile: {
+        options: {
+          sourceMap: true
+        },
+        files: [{
+          expand: true,
+          flatten: false,
+          cwd: '<%= config.dev %>/styles/',
+          src: ['{,*/}*.styl'],
+          dest: '<%= config.app %>/styles/',
+          ext: '.css'
+        }]
+      }
+    },
+
+    processhtml: {
+      dev: {
+        files: {
+          '.tmp/index.html': ['<%= config.app %>/index.html']
+        }
+      },
+      dist: {
+        files: {
+          '<%= config.dist %>/index.html': ['<%= config.app %>/index.html']
+        }
+      },
+      options: {
+        commentMarker: 'process'
+      }
+    },
+
+    // Reads HTML for usemin blocks to enable smart builds that automatically
+    // concat, uglify and revision files. Creates configurations in memory so
+    // additional tasks can operate on them
+    useminPrepare: {
+      options: {
+        dest: '<%= config.dist %>'
+      },
+      html: '<%= config.dist %>/index.html'
+    },
+
+    // Performs reqrite based on rev and the useminPrepare configuration
+    usemin: {
+      options: {
+        assetsDirs: ['<%= config.dist %>', '<%= config.dist %>/images']
+      },
+      html: ['<%= config.dist %>/{,*/}*.html'],
+      css: ['<%= config.dist %>/css/{,*/}*.css']
+    },
+
+    htmlmin: {
+      dist: {
+        options: {
+          collapseBooleanAttributes: true,
+          collapseWhitespace: true,
+          removeAttributeQuotes: true,
+          removeCommentsFromCDATA: true,
+          removeEmptyAttributes: true,
+          removeOptionalTags: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= config.dist %>',
+          src: '{,*/}*.html',
+          dest: '<%= config.dist %>'
+        }]
+      }
+    },
+
+    imagemin: { // Task
+      static: { // Target
+        options: { // Target options
+          optimizationLevel: 3 //,
+          //use: [mozjpeg()]
+        },
+        files: { // Dictionary of files
+          'dist/img.png': 'src/img.png', // 'destination': 'source'
+          'dist/img.jpg': 'src/img.jpg',
+          'dist/img.gif': 'src/img.gif'
+        }
+      },
+      dynamic: { // Another target
+        files: [{
+          expand: true, // Enable dynamic expansion
+          cwd: '<%= config.dev %>/content/images/', // Src matches are relative to this path
+          src: ['**/**.{png,jpg,gif}'], // Actual patterns to match
+          dest: '<%= config.app %>/content/images/' // Destination path prefix
+        }]
+      }
+    },
+
     // The actual grunt server settings
     connect: {
       options: {
@@ -104,13 +238,36 @@ module.exports = function(grunt) {
           ]
         }]
       },
+      all: {
+        files: [{
+          dot: true,
+          src: [
+            '.tmp',
+            '<%= config.app %>/*',
+            '<%= config.dist %>/*',
+            '!<%= config.dist %>/.git*'
+          ]
+        }]
+      },
+      app: {
+        files: [{
+          dot: true,
+          src: [
+            '.tmp',
+            '<%= config.app %>/*',
+            '!<%= config.app %>/lib',
+            '<%= config.dist %>/*',
+            '!<%= config.dist %>/.git*'
+          ]
+        }]
+      },
       server: '.tmp'
     },
 
     // Automagically wire-up installed Bower components into your RequireJS config
     bower: {
-      raget: {
-        rjsConfig: '<%= config.app %>/src/requireConfig.js'
+      target: {
+        rjsConfig: 'requireConfig.js'
       }
     },
 
@@ -120,136 +277,10 @@ module.exports = function(grunt) {
           src: [
             '<%= config.dist %>/src/{,*/}*.js',
             '<%= config.dist %>/css/{,*/}*.css',
-            // '<%= config.dist %>/images/{,*/}*.*',
             '<%= config.dist %>/css/fonts/{,*/}*.*',
             '<%= config.dist %>/*.{ico,png}'
           ]
         }
-      }
-    },
-    coffee: {
-      compile: {
-        options: {
-          sourceMap: true
-        },
-        files: [{
-        expand: true,
-        flatten: false,
-        cwd: '<%= config.dev %>/src/',
-        src: ['{,*/}*.coffee'],
-        dest: '<%= config.app %>/src/',
-        ext: '.js'
-        }]
-      }
-    },
-    coffeelint: {
-      files: ['<%=config.dev%>/src/**/**.coffee'],
-      options: {
-        configFile: 'coffeelint.json'
-      }
-    },
-    jade: {
-      compile: {
-        options: {
-          pretty: true,
-          data: {
-            debug: false
-          }
-        },
-        files: [{
-          expand: true,
-          flatten: true,
-          cwd: '<%=config.dev%>/',
-          src: ['*.jade'],
-          dest: '<%= config.app %>/',
-          ext: '.html'
-        }]
-      }
-    },
-    stylus: {
-      compile: {
-        options: {},
-        files: [{
-          '<%= config.app %>/styles/app.css': ['<%= config.dev %>/styles/**/**.styl']
-        }]
-      }
-    },
-
-    processhtml: {
-      dev: {
-        files: {
-          '.tmp/index.html': ['<%= config.app %>/index.html']
-        }
-      },
-      dist: {
-        files: {
-          '<%= config.dist %>/index.html': ['<%= config.app %>/index.html']
-        }
-      },
-      options: {
-        commentMarker: 'process'
-      }
-    },
-
-    // Reads HTML for usemin blocks to enable smart builds that automatically
-    // concat, uglify and revision files. Creates configurations in memory so
-    // additional tasks can operate on them
-
-    useminPrepare: {
-      options: {
-        dest: '<%= config.dist %>'
-      },
-      html: '<%= config.dist %>/index.html'
-    },
-
-    // Performs reqrite based on rev and the useminPrepare configuration
-    usemin: {
-      options: {
-        assetsDirs: ['<%= config.dist %>', '<%= config.dist %>/images']
-      },
-      html: ['<%= config.dist %>/{,*/}*.html'],
-      css: ['<%= config.dist %>/css/{,*/}*.css']
-    },
-
-    htmlmin: {
-      dist: {
-        options: {
-          collapseBooleanAttributes: true,
-          collapseWhitespace: true,
-          removeAttributeQuotes: true,
-          removeCommentsFromCDATA: true,
-          removeEmptyAttributes: true,
-          removeOptionalTags: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true
-        },
-        files: [{
-          expand: true,
-          cwd: '<%= config.dist %>',
-          src: '{,*/}*.html',
-          dest: '<%= config.dist %>'
-        }]
-      }
-    },
-    imagemin: { // Task
-      static: { // Target
-        options: { // Target options
-          optimizationLevel: 3 //,
-          //use: [mozjpeg()]
-        },
-        files: { // Dictionary of files
-          'dist/img.png': 'src/img.png', // 'destination': 'source'
-          'dist/img.jpg': 'src/img.jpg',
-          'dist/img.gif': 'src/img.gif'
-        }
-      },
-      dynamic: { // Another target
-        files: [{
-          expand: true, // Enable dynamic expansion
-          cwd: '<%= config.dev %>/content/images/', // Src matches are relative to this path
-          src: ['**/**.{png,jpg,gif}'], // Actual patterns to match
-          dest: '<%= config.app %>/content/images/' // Destination path prefix
-        }]
       }
     },
 
@@ -262,10 +293,8 @@ module.exports = function(grunt) {
           cwd: '<%= config.app %>',
           dest: '<%= config.dist %>',
           src: [
-            '**/**.{ico,png,txt,jpg}',
+            'content/{,*/}*.*',
             '.htaccess',
-            'images/{,*/}*.webp',
-            // '{,*/}*.html',
             'styles/fonts/{,*/}*.*',
             'lib/famous/**/**.css'
           ]
@@ -275,14 +304,18 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           dot: true,
-          cwd: '<%= config.dev %>/content',
-          dest: '<%= config.app %>/content',
+          cwd: '<%= config.dev %>',
+          dest: '<%= config.app %>',
           src: [
-            '**/**.{ico,png,txt,jpg}',
+            'content/{,*/}*.*',
+            '.htaccess',
+            'styles/fonts/{,*/}*.*',
+            'lib/famous/**/**.css'
           ]
         }]
       }
     },
+
     requirejs: {
       compile: {
         options: {
@@ -311,12 +344,14 @@ module.exports = function(grunt) {
 
     grunt.task.run([
       'clean:server',
+      'initRequireConfig',
       'copyContent',
-      'coffee:compile',
       'coffeelint',
-      'stylus',
+      'coffee:compile',
+      'stylus:compile',
       'jade:compile',
       'processhtml:dev',
+      'imageCompress',
       'connect:livereload',
       'watch'
     ]);
@@ -324,11 +359,14 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
-    'coffee:compile',
+    'initRequireConfig',
+    'copyContent',
     'coffeelint',
-    'stylus',
+    'coffee:compile',
+    'stylus:compile',
     'jade:compile',
     'processhtml:dist',
+    'imageCompress',
     'useminPrepare',
     'requirejs',
     'concat',
@@ -337,8 +375,7 @@ module.exports = function(grunt) {
     'copy:dist',
     'rev',
     'usemin',
-    'htmlmin',
-    'imageCompress'
+    'htmlmin'
   ]);
 
   grunt.registerTask('default', [
@@ -352,5 +389,15 @@ module.exports = function(grunt) {
   grunt.registerTask('copyContent', [
     'newer:copy:app'
   ]);
+
+  grunt.registerTask('initRequireConfig', function() {
+    if (!grunt.file.exists('app/src/requireConfig.js')) {
+      grunt.file.copy('requireConfig.js.orig', 'app/src/requireConfig.js');
+    }
+  });
+
+  grunt.registerTask('restart', function() {
+    grunt.task.run(['clean:app', 'serve']);
+  });
 
 };

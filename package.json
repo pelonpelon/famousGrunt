@@ -41,6 +41,7 @@
     "grunt-contrib-stylus": "~0.16.0",
     "grunt-coffeelint": "0.0.10",
     "grunt-contrib-imagemin": "~0.7.1",
-    "grunt-newer": "~0.7.0"
+    "grunt-newer": "~0.7.0",
+    "grunt-jscs-checker": "~0.4.4"
   }
 }
